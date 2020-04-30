@@ -28,10 +28,6 @@ app.get('/', (req, res)=>{
 	res.json("Welcome home");
 })
 
-app.get('/users', (req, res) => {
-	res.json(database.users);
-})
-
 app.get('/profile/:id', (req, res) =>{
 	const { id } = req.params;
 	db.select('*').from('users').where({
