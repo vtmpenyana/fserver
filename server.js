@@ -69,8 +69,8 @@ app.post('/register', (req, res) => register.handleRegister(req, res, bcrypt,db)
 
 
 
-app.listen(3000, () => {
-	console.log('server listening on port: 3000')
+app.listen((process.env.PORT || 3000), () => {
+	console.log(`server running on PORT ${process.env.PORT}`);
 })
 // bcrypt.hash("bacon", null, null, function(err, hash) {
 //     // Store hash in your password DB.
