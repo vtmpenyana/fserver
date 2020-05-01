@@ -15,9 +15,7 @@ const db = knex({
   connection: {
     connectionString: process.env.DATABASE_URL,
     ssl: true,
-    user : 'postgres',
     password : 'VTMNKCMT2real',
-    database : 'facebrain'
   }
 })
 
