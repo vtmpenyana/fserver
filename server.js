@@ -15,7 +15,7 @@ const db = knex({
   connection: {
     connectionString: process.env.DATABASE_URL,
     ssl: true,
-    password : 'VTMNKCMT2real',
+    user: "vtmpenyana@gmail.com"
   }
 })
 
