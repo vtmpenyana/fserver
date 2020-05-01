@@ -2,6 +2,12 @@ const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+const { Client } = require('pg');
+
+const db = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
+});
 
 //controllers
 // const register = require('./controllers/register');
@@ -10,15 +16,15 @@ const knex = require('knex');
 
 
 
-const db = knex({
-  client: 'pg',
-  connection: {
-    host : '127.0.0.1',
-    user : 'postgres',
-    password : 'VTMNKCMT2real',
-    database : 'facebrain'
-  }
-})
+// const db = knex({
+//   client: 'pg',
+//   connection: {
+//     host : '127.0.0.1',
+//     user : 'postgres',
+//     password : 'VTMNKCMT2real',
+//     database : 'facebrain'
+//   }
+// })
 
 const app = express();
 
@@ -32,43 +38,43 @@ app.get('/', (req, res)=>{
 app.post('/signin', (req, res) => {
 	const {email, password} = req.body;
 	res.json(email, password);
-	// db.select('hash').from('login').where({
-	// 	email: req.body.email
-	// }).then(data => {
-	// 	//hashing passwords
-	// 	if(bcrypt.compareSync(req.body.password, data[0].hash)){
-	// 		return db.select('*').from('users').where({
-	// 			email: req.body.email
-	// 		}).then(user => {
-	// 			res.json(user[0]);
-	// 		})
-	// 		.catch(err => console.log("Unable to login user in"));
-	// 	}
-	// 	else{
-	// 		res.json("Wrong credential provided");
-	// 	}
-	// }).catch(err => {console.log("Couldn't sign in")});
+	db.select('hash').from('login').where({
+		email: req.body.email
+	}).then(data => {
+		//hashing passwords
+		if(bcrypt.compareSync(req.body.password, data[0].hash)){
+			return db.select('*').from('users').where({
+				email: req.body.email
+			}).then(user => {
+				res.json(user[0]);
+			})
+			.catch(err => console.log("Unable to login user in"));
+		}
+		else{
+			res.json("Wrong credential provided");
+		}
+	}).catch(err => {console.log("Couldn't sign in")});
 });
 
 app.post('/register', (req, res) => {
 	const {name, email, password} = req.body;
 	res.json(name, email, password);
-	// console.log(email, name, password);
-	// db.transaction(trx => {
-	// 	trx('login').insert({
-	// 		email: email,
-	// 		hash: bcrypt.hashSync(password)
-	// 	}).returning('email').then(loginEmail => {
-	// 		return trx('users').insert({
-	// 			email: loginEmail[0],
-	// 			name: name,
-	// 			joined: new Date()
-	// 		}).returning('*')
-	// 	}).then(user => {
-	// 		res.status(200).json(user[0])
-	// 	})
-	// 	.then(trx.commit).catch(trx.rollback)
-	// })
+	console.log(email, name, password);
+	db.transaction(trx => {
+		trx('login').insert({
+			email: email,
+			hash: bcrypt.hashSync(password)
+		}).returning('email').then(loginEmail => {
+			return trx('users').insert({
+				email: loginEmail[0],
+				name: name,
+				joined: new Date()
+			}).returning('*')
+		}).then(user => {
+			res.status(200).json(user[0])
+		})
+		.then(trx.commit).catch(trx.rollback)
+	})
 });
 
 
