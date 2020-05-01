@@ -29,7 +29,6 @@ app.get('/', (req, res)=>{
 
 app.post('/signin', (req, res) => {
 	const {email, password} = req.body;
-	res.json(email, password);
 	db.select('hash').from('login').where({
 		email: req.body.email
 	}).then(data => {
@@ -50,8 +49,6 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
 	const {name, email, password} = req.body;
-	res.json(name, email, password);
-	console.log(email, name, password);
 	db.transaction(trx => {
 		trx('login').insert({
 			email: email,
