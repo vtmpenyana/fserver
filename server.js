@@ -2,12 +2,6 @@ const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
-const { Client } = require('pg');
-
-const db = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true,
-});
 
 //controllers
 // const register = require('./controllers/register');
@@ -16,15 +10,16 @@ const db = new Client({
 
 
 
-// const db = knex({
-//   client: 'pg',
-//   connection: {
-//     host : '127.0.0.1',
-//     user : 'postgres',
-//     password : 'VTMNKCMT2real',
-//     database : 'facebrain'
-//   }
-// })
+const db = knex({
+  client: 'pg',
+  connection: {
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
+    user : 'postgres',
+    password : 'VTMNKCMT2real',
+    database : 'facebrain'
+  }
+})
 
 const app = express();
 
