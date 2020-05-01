@@ -4,8 +4,8 @@ const cors = require('cors');
 const knex = require('knex');
 
 //controllers
-const register = require('./controllers/register');
-const signin = require('./controllers/signin');
+// const register = require('./controllers/register');
+// const signin = require('./controllers/signin');
 
 
 
@@ -27,8 +27,44 @@ app.get('/', (req, res)=>{
 	res.json("Welcome home");
 })
 
-app.post('/signin', (req, res) => signin.handleSignin(req, res, bcrypt, db));
-app.post('/register', (req, res) => register.handleRegister(req, res, bcrypt,db));
+app.post('/signin', (req, res) => {
+	const {email, password} = req.body;
+	db.select('hash').from('login').where({
+		email: req.body.email
+	}).then(data => {
+		//hashing passwords
+		if(bcrypt.compareSync(req.body.password, data[0].hash)){
+			return db.select('*').from('users').where({
+				email: req.body.email
+			}).then(user => {
+				res.json(user[0]);
+			})
+			.catch(err => console.log("Unable to login user in"));
+		}
+		else{
+			res.json("Wrong credential provided");
+		}
+	}).catch(err => {console.log("Couldn't sign in")});
+});
+
+app.post('/register', (req, res) => {
+	const {name, email, password} = req.body;
+	db.transaction(trx => {
+		trx('login').insert({
+			email: email,
+			hash: bcrypt.hashSync(password)
+		}).returning('email').then(loginEmail => {
+			return trx('users').insert({
+				email: loginEmail[0],
+				name: name,
+				joined: new Date()
+			}).returning('*')
+		}).then(user => {
+			res.status(200).json(user[0])
+		})
+		.then(trx.commit).catch(trx.rollback)
+	})
+});
 
 
 app.get('/profile/:id', (req, res) =>{
