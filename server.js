@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 const knex = require('knex');
+
 //controllers
 const register = require('./controllers/register');
 const signin = require('./controllers/signin');
@@ -12,10 +13,8 @@ const signin = require('./controllers/signin');
 const db = knex({
   client: 'pg',
   connection: {
-    host : '127.0.0.1',
-    user : 'postgres',
-    password : 'VTMNKCMT2real',
-    database : 'facebrain'
+  	connectionString: process.env.DATABASE_URL,
+  	ssl: true,
   }
 })
 
@@ -27,6 +26,10 @@ app.use(express.json());
 app.get('/', (req, res)=>{
 	res.json("Welcome home");
 })
+
+app.post('/signin', (req, res) => signin.handleSignin(req, res, bcrypt, db));
+app.post('/register', (req, res) => register.handleRegister(req, res, bcrypt,db));
+
 
 app.get('/profile/:id', (req, res) =>{
 	const { id } = req.params;
@@ -60,8 +63,6 @@ app.put('/image', (req, res) => {
 })
 
 //controlled endpoints.
-app.post('/signin', (req, res) => signin.handleSignin(req, res, bcrypt, db));
-app.post('/register', (req, res) => register.handleRegister(req, res, bcrypt,db));
 
 
 
