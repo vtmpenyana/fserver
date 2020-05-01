@@ -49,6 +49,7 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
 	const {name, email, password} = req.body;
+	console.log(email, name, password);
 	db.transaction(trx => {
 		trx('login').insert({
 			email: email,
